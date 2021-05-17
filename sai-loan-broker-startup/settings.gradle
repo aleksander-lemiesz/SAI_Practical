@@ -1,0 +1,3 @@
+rootProject.name = 'sai-loan-broker'
+
+include 'shared', 'loan-client', 'bank'
