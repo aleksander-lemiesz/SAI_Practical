@@ -16,7 +16,7 @@ public abstract class BankApplicationGateway {
 
     // Storing the requests
     private HashMap<String, LoanRequest> requests = new HashMap<>();
-    private final String replyQueue = "bankReplyQueue";
+    private final String replyQueue = "bankReplyQueue2";
 
     public BankApplicationGateway() {
         // start connection

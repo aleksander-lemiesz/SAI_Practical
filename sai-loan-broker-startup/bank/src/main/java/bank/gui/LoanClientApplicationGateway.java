@@ -51,7 +51,7 @@ public abstract class LoanClientApplicationGateway {
     public LoanClientApplicationGateway() {
         msgReceiverGateway = new MessageReceiverGateway("bankRequestQueue");
         //msgSenderGateway = null;
-        msgSenderGateway = new MessageSenderGateway("bankReplyQueue");
+        msgSenderGateway = new MessageSenderGateway();
 
         msgReceiverGateway.setListener( new MessageListener() {
             @Override

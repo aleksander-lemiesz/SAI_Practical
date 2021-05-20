@@ -28,6 +28,23 @@ public class MessageSenderGateway {
         }
     }
 
+    public MessageSenderGateway() {
+        try {
+            ConnectionFactory connectionFactory;
+            connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+
+            connection = connectionFactory.createConnection();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+            // connect to the sender destination (i.e., queue “myFirstDestination”)
+            sendDestination = null;
+            producer = session.createProducer(sendDestination);
+
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
+
     public Message createTextMessage(String body) {
         // create a text message
         Message msg = null;
