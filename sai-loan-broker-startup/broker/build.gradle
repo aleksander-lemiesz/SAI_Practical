@@ -1,0 +1,20 @@
+plugins {
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+    id 'application'
+}
+
+
+javafx {
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+application {
+    mainClass.set('broker.gui.BrokerMain')
+}
+
+dependencies {
+    implementation project(":shared")
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.+'
+}
+
+

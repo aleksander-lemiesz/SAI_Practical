@@ -1,8 +1,8 @@
-loanclient/gui/LoanClientMain.java
- loanclient.gui.LoanClientMain
 loanclient/gui/BankApplicationGateway.java
  loanclient.gui.BankApplicationGateway
  loanclient.gui.BankApplicationGateway$1
+loanclient/gui/LoanClientMain.java
+ loanclient.gui.LoanClientMain
 loanclient/gui/LoanClientController.java
  loanclient.gui.LoanClientController
  loanclient.gui.LoanClientController$1
