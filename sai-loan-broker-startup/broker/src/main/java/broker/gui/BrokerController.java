@@ -15,21 +15,24 @@ import java.util.ResourceBundle;
 
 public class BrokerController implements Initializable {
 
-    //private LoanClientApplicationGateway gateway = null;
+    private LoanClientApplicationGateway loanGateway = null;
+    private BankApplicationGateway bankGateway = null;
 
     @FXML
     private ListView<BankRequest> lvBankRequestReply;
     @FXML
     private TextField tfInterest;
 
-    /*public BrokerController() {
-        gateway = new LoanClientApplicationGateway() {
+    public BrokerController() {
+        loanGateway = new LoanClientApplicationGateway() {
             @Override
             public void onBankRequestReceived(BankRequest request) {
                 showBankRequest(request);
             }
         };
-    }*/
+        bankGateway = new BankApplicationGateway();
+
+    }
 
     /*
      Use this method to show each bankRequest (upon message arrival) on the frame in a thread-safe way.
@@ -44,7 +47,8 @@ public class BrokerController implements Initializable {
     }
 
     void stop() {
-        //gateway.stop();
+        loanGateway.stop();
+        bankGateway.stop();
     }
 
     /*
@@ -54,16 +58,5 @@ public class BrokerController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
     }
-
-    /*@FXML
-    public void btnSendBankInterestReplyClicked() {
-
-        BankRequest bankRequest = this.lvBankRequestReply.getSelectionModel().getSelectedItem();
-        BankReply bankReply = new BankReply(0, "ING");
-        int interest = Integer.parseInt(tfInterest.getText());
-        bankReply.setInterest(interest);
-
-        gateway.sendBankReply(bankRequest, bankReply);
-    }*/
 
 }

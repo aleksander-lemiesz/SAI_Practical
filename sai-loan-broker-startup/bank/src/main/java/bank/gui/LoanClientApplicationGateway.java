@@ -40,8 +40,11 @@ public abstract class LoanClientApplicationGateway {
             // Decide where to send the message
             Destination returnAddress = destinations.get(request);
 
+            // Because the message is send to the broker the return address is saved in reply to
+            message.setJMSReplyTo(returnAddress);
+
             // Send the reply message
-            msgSenderGateway.send(message, returnAddress);
+            msgSenderGateway.send(message);
 
         } catch (JMSException e) {
             e.printStackTrace();
@@ -50,8 +53,7 @@ public abstract class LoanClientApplicationGateway {
 
     public LoanClientApplicationGateway() {
         msgReceiverGateway = new MessageReceiverGateway("bankRequestQueue");
-        //msgSenderGateway = null;
-        msgSenderGateway = new MessageSenderGateway();
+        msgSenderGateway = new MessageSenderGateway("brokerReplyQueue");
 
         msgReceiverGateway.setListener( new MessageListener() {
             @Override

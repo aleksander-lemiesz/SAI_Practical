@@ -16,11 +16,12 @@ public abstract class BankApplicationGateway {
 
     // Storing the requests
     private HashMap<String, LoanRequest> requests = new HashMap<>();
-    private final String replyQueue = "bankReplyQueue2";
+    private final String replyQueue = "bankReplyQueue";
 
     public BankApplicationGateway() {
         // start connection
-        msgSenderGateway = new MessageSenderGateway("bankRequestQueue");
+        //msgSenderGateway = new MessageSenderGateway("bankRequestQueue");
+        msgSenderGateway = new MessageSenderGateway("brokerRequestQueue");
 
         msgReceiverGateway = new MessageReceiverGateway(replyQueue);
         msgReceiverGateway.setListener(new MessageListener() {
