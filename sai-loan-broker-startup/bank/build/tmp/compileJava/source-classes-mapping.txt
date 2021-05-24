@@ -1,9 +1,9 @@
-bank/gui/LoanClientApplicationGateway.java
- bank.gui.LoanClientApplicationGateway
- bank.gui.LoanClientApplicationGateway$1
 bank/gui/BankMain.java
  bank.gui.BankMain
  bank.gui.BankMain$1
+bank/gui/LoanClientApplicationGateway.java
+ bank.gui.LoanClientApplicationGateway
+ bank.gui.LoanClientApplicationGateway$1
 bank/gui/BankController.java
  bank.gui.BankController
  bank.gui.BankController$1

@@ -1,8 +1,10 @@
 package broker.gui;
 
+import com.google.gson.Gson;
 import shared.model.MessageReceiverGateway;
 import shared.model.MessageSenderGateway;
 import shared.model.bank.BankRequest;
+import shared.model.client.LoanReply;
 
 import javax.jms.*;
 
@@ -22,6 +24,11 @@ public abstract class LoanClientApplicationGateway {
 
                     toClientGateway.send(msg, msg.getJMSReplyTo());
 
+                    TextMessage textMessage = (TextMessage) msg;
+                    var deserialized = deserializeBankRequest(textMessage.getText());
+
+                    onBankRequestReceived(deserialized);
+
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -35,6 +42,10 @@ public abstract class LoanClientApplicationGateway {
     public void stop() {
         toClientGateway.stop();
         fromClientGateway.stop();
+    }
+
+    public BankRequest deserializeBankRequest(String body) {
+        return new Gson().fromJson(body, BankRequest.class);
     }
 
 }
