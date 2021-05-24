@@ -9,19 +9,19 @@ import javax.jms.MessageListener;
 
 public class BankApplicationGateway {
 
-    private MessageSenderGateway toBankGateway = null;
+    private MessageSenderGateway toClientGateway = null;
     private MessageReceiverGateway fromBankGateway = null;
 
     public BankApplicationGateway() {
         fromBankGateway = new MessageReceiverGateway("brokerReplyQueue");
-        toBankGateway = new MessageSenderGateway("bankRequestQueue");
+        toClientGateway = new MessageSenderGateway();
 
         fromBankGateway.setListener(new MessageListener() {
             @Override
             public void onMessage(Message msg) {
                 try {
 
-                    toBankGateway.send(msg);
+                    toClientGateway.send(msg, msg.getJMSReplyTo());
 
                 } catch (JMSException e) {
                     e.printStackTrace();
@@ -32,7 +32,7 @@ public class BankApplicationGateway {
     }
 
     public void stop() {
-        toBankGateway.stop();
+        toClientGateway.stop();
         fromBankGateway.stop();
     }
 
