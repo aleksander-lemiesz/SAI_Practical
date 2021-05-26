@@ -45,8 +45,6 @@ public abstract class LoanClientApplicationGateway {
 
             // Send the reply message
             msgSenderGateway.send(message);
-            System.out.println(reply);
-            System.out.println(message.getText());
 
         } catch (JMSException e) {
             e.printStackTrace();
@@ -80,6 +78,7 @@ public abstract class LoanClientApplicationGateway {
 
                     //call abstr. meth. to pass the bankRequest
                     onBankRequestReceived(bankRequest);
+
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }

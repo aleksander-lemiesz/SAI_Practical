@@ -25,12 +25,6 @@ public class BankApplicationGateway {
             public void onMessage(Message msg) {
                 try {
 
-                    TextMessage message = (TextMessage) msg;
-                    var deserialized = deserializeBankReply(message.getText());
-                    System.out.println(deserialized);
-
-                    System.out.println(msg.getJMSCorrelationID());
-
                     toClientGateway.send(msg, msg.getJMSReplyTo());
 
                 } catch (JMSException e) {

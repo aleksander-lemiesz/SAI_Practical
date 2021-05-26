@@ -59,9 +59,7 @@ public class LoanClientController implements Initializable {
             @Override
             public void onLoanReplyReceived(LoanRequest request, LoanReply reply) {
                 // loop through the listview and find line with this request
-                System.out.println("request: " + request);
                 for (ListViewLine<LoanRequest, LoanReply> list : lvLoanRequestReply.getItems()) {
-                //    System.out.println("request: " + list.getRequest());
                     // assign reply to that line
                     if (request == list.getRequest()) {
                         list.setReply(reply);
@@ -69,7 +67,6 @@ public class LoanClientController implements Initializable {
                 }
                 // Refreshing the list
                 Platform.runLater(() -> lvLoanRequestReply.refresh());
-                //System.out.println("refreshing...");
             }
         };
     }
