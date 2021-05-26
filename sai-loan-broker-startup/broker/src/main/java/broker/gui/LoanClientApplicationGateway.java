@@ -21,6 +21,9 @@ public abstract class LoanClientApplicationGateway {
             public void onMessage(Message msg) {
                 try {
 
+                    // Set correlation ID
+                    msg.setJMSCorrelationID(msg.getJMSMessageID());
+
                     toBankGateway.send(msg);
 
                     TextMessage textMessage = (TextMessage) msg;

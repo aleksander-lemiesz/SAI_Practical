@@ -1,11 +1,15 @@
 package broker.gui;
 
+import com.google.gson.Gson;
 import shared.model.MessageReceiverGateway;
 import shared.model.MessageSenderGateway;
+import shared.model.bank.BankReply;
+import shared.model.bank.BankRequest;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.jms.TextMessage;
 
 public class BankApplicationGateway {
 
@@ -21,6 +25,12 @@ public class BankApplicationGateway {
             public void onMessage(Message msg) {
                 try {
 
+                    TextMessage message = (TextMessage) msg;
+                    var deserialized = deserializeBankReply(message.getText());
+                    System.out.println(deserialized);
+
+                    System.out.println(msg.getJMSCorrelationID());
+
                     toClientGateway.send(msg, msg.getJMSReplyTo());
 
                 } catch (JMSException e) {
@@ -34,6 +44,10 @@ public class BankApplicationGateway {
     public void stop() {
         toClientGateway.stop();
         fromBankGateway.stop();
+    }
+
+    public BankReply deserializeBankReply(String body) {
+        return new Gson().fromJson(body, BankReply.class);
     }
 
 }

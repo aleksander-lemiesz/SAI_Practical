@@ -29,7 +29,7 @@ public abstract class LoanClientApplicationGateway {
             String json = serializeBankReply(reply);
 
             // Create the message
-            Message message = msgSenderGateway.createTextMessage(json);
+            TextMessage message = (TextMessage) msgSenderGateway.createTextMessage(json);
 
             // Get correlation ID
             String corId = requests.get(request);
@@ -45,6 +45,8 @@ public abstract class LoanClientApplicationGateway {
 
             // Send the reply message
             msgSenderGateway.send(message);
+            System.out.println(reply);
+            System.out.println(message.getText());
 
         } catch (JMSException e) {
             e.printStackTrace();
@@ -67,7 +69,7 @@ public abstract class LoanClientApplicationGateway {
                     BankRequest bankRequest = deserializeBankRequest(json);
 
                     // Get the id of the message
-                    String messageId = message.getJMSMessageID();
+                    String messageId = message.getJMSCorrelationID();
 
                     // Put the id and request in the hashMap
                     requests.put(bankRequest, messageId);

@@ -1,18 +1,14 @@
 package loanclient.gui;
 
-import com.google.gson.Gson;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import org.apache.activemq.ActiveMQConnectionFactory;
 import shared.model.ListViewLine;
-import shared.model.MessageSenderGateway;
 import shared.model.client.LoanReply;
 import shared.model.client.LoanRequest;
 
-import javax.jms.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -63,15 +59,17 @@ public class LoanClientController implements Initializable {
             @Override
             public void onLoanReplyReceived(LoanRequest request, LoanReply reply) {
                 // loop through the listview and find line with this request
+                System.out.println("request: " + request);
                 for (ListViewLine<LoanRequest, LoanReply> list : lvLoanRequestReply.getItems()) {
+                //    System.out.println("request: " + list.getRequest());
                     // assign reply to that line
                     if (request == list.getRequest()) {
                         list.setReply(reply);
                     }
                 }
                 // Refreshing the list
-                //lvLoanRequestReply.refresh();
                 Platform.runLater(() -> lvLoanRequestReply.refresh());
+                //System.out.println("refreshing...");
             }
         };
     }
