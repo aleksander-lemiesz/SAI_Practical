@@ -27,8 +27,6 @@ public class BrokerController implements Initializable {
 
     @FXML
     private ListView<ListViewLine<LoanRequest, LoanReply>> lvLoanRequestReply= new ListView<>();
-    @FXML
-    private TextField tfInterest;
 
     public BrokerController() {
         loanGateway = new LoanClientApplicationGateway() {
@@ -37,7 +35,7 @@ public class BrokerController implements Initializable {
                 BankRequest bankRequest = new BankRequest(loanRequest.getAmount(), loanRequest.getTime(), 0, 0);
                 bankGateway.sendBankRequest(bankRequest);
                 requests.put(bankRequest, loanRequest);
-                
+
                 showLoanRequest(loanRequest);
             }
         };
@@ -46,9 +44,6 @@ public class BrokerController implements Initializable {
             public void onBankReplyReceived(BankReply bankReply, BankRequest bankRequest) {
                 LoanReply loanReply = new LoanReply(bankReply.getInterest(), bankReply.getBank());
                 LoanRequest request = requests.get(bankRequest);
-                System.out.println("Controller requests map: " + requests);
-                System.out.println("Controller bankRequest: " + bankRequest);
-                System.out.println("Controller loanRequest: " + request);
                 loanGateway.sendLoanReply(loanReply, request);
 
                 showAndUpdateLoans(loanReply, request);

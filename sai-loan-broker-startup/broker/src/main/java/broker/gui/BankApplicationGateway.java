@@ -32,9 +32,6 @@ public abstract class BankApplicationGateway {
                     BankReply reply = deserializeBankReply(split[0]);
                     BankRequest request = deserializeBankRequest(split[1]);
 
-                    System.out.println("On message Bank gateway reply: " + reply);
-                    System.out.println("On message Bank gateway request: " + request);
-
                     onBankReplyReceived(reply, request);
 
                 } catch (JMSException e) {

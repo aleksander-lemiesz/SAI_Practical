@@ -30,10 +30,6 @@ public abstract class LoanClientApplicationGateway {
                     TextMessage textMessage = (TextMessage) msg;
                     var request = deserializeBankRequest(textMessage.getText());
                     var replyTo = msg.getJMSReplyTo();
-
-                    System.out.println("Client gateway On message Request: " + request);
-                    System.out.println("Client gateway On message ReplyTo: " + replyTo);
-
                     requests.put(request, replyTo);
 
                     onLoanRequestReceived(request);
@@ -73,8 +69,6 @@ public abstract class LoanClientApplicationGateway {
         try {
             Message msg = toClientGateway.createTextMessage(serializeLoanReplyAndRequest(reply, request));
             var replyTo = requests.get(request);
-            System.out.println("Client gateway Send request: " + request);
-            System.out.println("Client gateway Send ReplyTo: " + replyTo);
             toClientGateway.send(msg, replyTo);
         } catch (JMSException e) {
             e.printStackTrace();
