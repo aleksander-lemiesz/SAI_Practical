@@ -4,17 +4,20 @@ import com.google.gson.Gson;
 import shared.model.MessageReceiverGateway;
 import shared.model.MessageSenderGateway;
 import shared.model.bank.BankRequest;
+import shared.model.client.LoanReply;
+import shared.model.client.LoanRequest;
 
 import javax.jms.*;
 
 public abstract class LoanClientApplicationGateway {
 
-    private MessageSenderGateway toBankGateway = null;
+    // private MessageSenderGateway toBankGateway = null;
+    private MessageSenderGateway toClientGateway = null;
     private MessageReceiverGateway fromClientGateway = null;
 
     public LoanClientApplicationGateway() {
         fromClientGateway = new MessageReceiverGateway("brokerRequestQueue");
-        toBankGateway = new MessageSenderGateway("bankRequestQueue");
+        toClientGateway = new MessageSenderGateway();
 
         fromClientGateway.setListener( new MessageListener() {
             @Override
@@ -23,13 +26,17 @@ public abstract class LoanClientApplicationGateway {
 
                     // Set correlation ID
                     msg.setJMSCorrelationID(msg.getJMSMessageID());
+                    String corId = msg.getJMSMessageID();
+                    Destination replyTo = msg.getJMSReplyTo();
 
-                    toBankGateway.send(msg);
+                    // TODO: add enricher here
+
+                    //toClientGateway.send(msg);
 
                     TextMessage textMessage = (TextMessage) msg;
                     var deserialized = deserializeBankRequest(textMessage.getText());
 
-                    onBankRequestReceived(deserialized);
+                    onLoanRequestReceived(deserialized, corId, replyTo);
 
                 } catch (JMSException e) {
                     e.printStackTrace();
@@ -39,15 +46,29 @@ public abstract class LoanClientApplicationGateway {
 
     }
 
-    public abstract void onBankRequestReceived(BankRequest request);
+    public abstract void onLoanRequestReceived(LoanRequest request, String corId, Destination replyTo);
 
     public void stop() {
-        toBankGateway.stop();
+        toClientGateway.stop();
         fromClientGateway.stop();
     }
 
-    public BankRequest deserializeBankRequest(String body) {
-        return new Gson().fromJson(body, BankRequest.class);
+    public LoanRequest deserializeBankRequest(String body) {
+        return new Gson().fromJson(body, LoanRequest.class);
+    }
+
+    public String serializeLoanReply(LoanReply reply) {
+        return new Gson().toJson(reply);
+    }
+
+    public void sendLoanReply(LoanReply reply, Destination destination, String corID) {
+        try {
+            Message msg = toClientGateway.createTextMessage(serializeLoanReply(reply));
+            msg.setJMSCorrelationID(corID);
+            toClientGateway.send(msg, destination);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
     }
 
 }

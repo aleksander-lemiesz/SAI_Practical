@@ -31,6 +31,8 @@ public abstract class BankApplicationGateway {
                     // Get the loan request via correlation ID in the hashMap
                     String corId = message.getJMSCorrelationID();
                     LoanRequest request = requests.get(corId);
+                    System.out.println("CorID: " + corId);
+                    System.out.println("Request: " + request);
 
                     // Get the LoanReply form the bank message
                     TextMessage textMessage = (TextMessage) message;
@@ -57,6 +59,7 @@ public abstract class BankApplicationGateway {
 
         // Set the receiver destination
         Destination replyDest = msgReceiverGateway.getDestination();
+        System.out.println("ReplyDestination: " + replyDest);
         message.setJMSReplyTo(replyDest);
 
         // send message
@@ -64,6 +67,7 @@ public abstract class BankApplicationGateway {
 
         // Put the messageId into the hashMap to be able to assign the reply
         String messageId = message.getJMSMessageID();
+        System.out.println("Original ID: " + messageId);
         requests.put(messageId, request);
 
     }

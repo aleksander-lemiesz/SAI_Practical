@@ -33,12 +33,14 @@ public abstract class LoanClientApplicationGateway {
 
             // Get correlation ID
             String corId = requests.get(request);
+            System.out.println("CorID after: " + corId);
 
             // Assign the correlation ID
             message.setJMSCorrelationID(corId);
 
             // Decide where to send the message
             Destination returnAddress = destinations.get(request);
+            System.out.println("ReplyDestination after: " + returnAddress);
 
             // Because the message is send to the broker the return address is saved in reply to
             message.setJMSReplyTo(returnAddress);
@@ -68,12 +70,14 @@ public abstract class LoanClientApplicationGateway {
 
                     // Get the id of the message
                     String messageId = message.getJMSCorrelationID();
+                    System.out.println("CorID before: " + messageId);
 
                     // Put the id and request in the hashMap
                     requests.put(bankRequest, messageId);
 
                     // Put the bankRequest and returnAddress
                     Destination destination = message.getJMSReplyTo();
+                    System.out.println("ReplyDestination before: " + destination);
                     destinations.put(bankRequest, destination);
 
                     //call abstr. meth. to pass the bankRequest
