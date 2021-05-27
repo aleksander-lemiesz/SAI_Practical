@@ -6,8 +6,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import shared.model.ListViewLine;
 import shared.model.bank.BankReply;
 import shared.model.bank.BankRequest;
+import shared.model.client.LoanReply;
+import shared.model.client.LoanRequest;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -18,7 +21,7 @@ public class BankController implements Initializable {
     private BrokerApplicationGateway gateway = null;
 
     @FXML
-    private ListView<BankRequest> lvBankRequestReply;
+    private ListView<ListViewLine<BankRequest, BankReply>> lvBankRequestReply;
     @FXML
     private TextField tfInterest;
 
@@ -38,7 +41,9 @@ public class BankController implements Initializable {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                lvBankRequestReply.getItems().add(bankRequest);
+                ListViewLine<BankRequest, BankReply> listViewLine = new ListViewLine<>(bankRequest);
+                lvBankRequestReply.getItems().add(listViewLine);
+                //lvBankRequestReply.getItems().add(bankRequest);
             }
         });
     }
@@ -58,12 +63,19 @@ public class BankController implements Initializable {
     @FXML
     public void btnSendBankInterestReplyClicked() {
 
-        BankRequest bankRequest = this.lvBankRequestReply.getSelectionModel().getSelectedItem();
+        //BankRequest bankRequest = this.lvBankRequestReply.getSelectionModel().getSelectedItem();
+        var line = this.lvBankRequestReply.getSelectionModel().getSelectedItem();
+        BankRequest bankRequest = line.getRequest();
+
         BankReply bankReply = new BankReply(0, "ING");
+
         int interest = Integer.parseInt(tfInterest.getText());
         bankReply.setInterest(interest);
 
         gateway.sendBankReply(bankRequest, bankReply);
+
+        line.setReply(bankReply);
+        Platform.runLater(() -> lvBankRequestReply.refresh());
     }
 
 }

@@ -6,12 +6,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import shared.model.ListViewLine;
 import shared.model.bank.BankReply;
 import shared.model.bank.BankRequest;
 import shared.model.client.LoanReply;
 import shared.model.client.LoanRequest;
 
-import javax.jms.Destination;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
@@ -26,7 +26,7 @@ public class BrokerController implements Initializable {
     private HashMap<BankRequest, LoanRequest> requests = new HashMap<>();
 
     @FXML
-    private ListView<LoanRequest> lvBankRequestReply;
+    private ListView<ListViewLine<LoanRequest, LoanReply>> lvLoanRequestReply= new ListView<>();
     @FXML
     private TextField tfInterest;
 
@@ -37,7 +37,8 @@ public class BrokerController implements Initializable {
                 BankRequest bankRequest = new BankRequest(loanRequest.getAmount(), loanRequest.getTime(), 0, 0);
                 bankGateway.sendBankRequest(bankRequest);
                 requests.put(bankRequest, loanRequest);
-                showBankRequest(loanRequest);
+                
+                showLoanRequest(loanRequest);
             }
         };
         bankGateway = new BankApplicationGateway() {
@@ -49,6 +50,8 @@ public class BrokerController implements Initializable {
                 System.out.println("Controller bankRequest: " + bankRequest);
                 System.out.println("Controller loanRequest: " + request);
                 loanGateway.sendLoanReply(loanReply, request);
+
+                showAndUpdateLoans(loanReply, request);
             }
         };
 
@@ -57,13 +60,25 @@ public class BrokerController implements Initializable {
     /*
      Use this method to show each bankRequest (upon message arrival) on the frame in a thread-safe way.
      */
-    private void showBankRequest(LoanRequest request){
+    private void showLoanRequest(LoanRequest request){
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                lvBankRequestReply.getItems().add(request);
+                ListViewLine<LoanRequest, LoanReply> listViewLine = new ListViewLine<>(request);
+                lvLoanRequestReply.getItems().add(listViewLine);
             }
         });
+    }
+
+    private void showAndUpdateLoans(LoanReply loanReply, LoanRequest request) {
+        for (ListViewLine<LoanRequest, LoanReply> list : lvLoanRequestReply.getItems()) {
+            // assign reply to that line
+            if (request.equals(list.getRequest())) {
+                list.setReply(loanReply);
+            }
+        }
+        // Refreshing the list
+        Platform.runLater(() -> lvLoanRequestReply.refresh());
     }
 
     void stop() {

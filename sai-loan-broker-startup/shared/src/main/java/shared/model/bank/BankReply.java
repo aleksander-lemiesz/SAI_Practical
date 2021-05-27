@@ -43,9 +43,6 @@ public class BankReply {
 
     @Override
     public String toString() {
-        return "BankReply{" +
-                "interest=" + interest +
-                ", bank='" + bank + '\'' +
-                '}';
+        return "interest=" + interest + ", bank='" + bank + '\'';
     }
 }

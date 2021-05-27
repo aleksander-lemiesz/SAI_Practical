@@ -35,8 +35,8 @@ public class LoanClientController implements Initializable {
         int amount = Integer.parseInt(tfAmount.getText());
         int time = Integer.parseInt(tfTime.getText());
         LoanRequest loanRequest = new LoanRequest(ssn, amount, time);
-        ListViewLine<LoanRequest, LoanReply> listViewLine = new ListViewLine<>(loanRequest);
 
+        ListViewLine<LoanRequest, LoanReply> listViewLine = new ListViewLine<>(loanRequest);
         this.lvLoanRequestReply.getItems().add(listViewLine);
 
         try {
