@@ -13,6 +13,7 @@ import shared.model.client.LoanRequest;
 
 import javax.jms.Destination;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 
@@ -20,6 +21,9 @@ public class BrokerController implements Initializable {
 
     private LoanClientApplicationGateway loanGateway = null;
     private BankApplicationGateway bankGateway = null;
+
+    // Linking LoanRequests with BankRequests
+    private HashMap<BankRequest, LoanRequest> requests = new HashMap<>();
 
     @FXML
     private ListView<LoanRequest> lvBankRequestReply;
@@ -29,22 +33,22 @@ public class BrokerController implements Initializable {
     public BrokerController() {
         loanGateway = new LoanClientApplicationGateway() {
             @Override
-            public void onLoanRequestReceived(LoanRequest request, String corId, Destination replyTo) {
-                BankRequest bankRequest = new BankRequest(request.getAmount(), request.getTime(), 0, 0);
-                System.out.println("corID: " + corId);
-                System.out.println("replyTo: " + replyTo);
-                System.out.println("Request: " + bankRequest);
-                bankGateway.sendBankRequest(bankRequest, corId, replyTo);
-                showBankRequest(request);
+            public void onLoanRequestReceived(LoanRequest loanRequest) {
+                BankRequest bankRequest = new BankRequest(loanRequest.getAmount(), loanRequest.getTime(), 0, 0);
+                bankGateway.sendBankRequest(bankRequest);
+                requests.put(bankRequest, loanRequest);
+                showBankRequest(loanRequest);
             }
         };
         bankGateway = new BankApplicationGateway() {
             @Override
-            public void onBankReplyReceived(BankReply reply, Destination destination, String corID) {
-                LoanReply loanReply = new LoanReply(reply.getInterest(), reply.getBank());
-                System.out.println("Destination after: " + destination);
-                System.out.println("Reply: " + loanReply);
-                loanGateway.sendLoanReply(loanReply, destination, corID);
+            public void onBankReplyReceived(BankReply bankReply, BankRequest bankRequest) {
+                LoanReply loanReply = new LoanReply(bankReply.getInterest(), bankReply.getBank());
+                LoanRequest request = requests.get(bankRequest);
+                System.out.println("Controller requests map: " + requests);
+                System.out.println("Controller bankRequest: " + bankRequest);
+                System.out.println("Controller loanRequest: " + request);
+                loanGateway.sendLoanReply(loanReply, request);
             }
         };
 

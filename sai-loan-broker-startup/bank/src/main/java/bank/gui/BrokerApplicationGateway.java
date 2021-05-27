@@ -5,6 +5,7 @@ import shared.model.MessageReceiverGateway;
 import shared.model.MessageSenderGateway;
 import shared.model.bank.BankReply;
 import shared.model.bank.BankRequest;
+import shared.model.client.LoanReply;
 import shared.model.client.LoanRequest;
 
 import javax.jms.*;
@@ -25,25 +26,12 @@ public abstract class BrokerApplicationGateway {
 
     public void sendBankReply(BankRequest request, BankReply reply) {
         try {
-            // Turn reply into string
-            String json = serializeBankReply(reply);
+
+            // Serialize
+            String serialized = serializeBankReplyAndRequest(reply, request);
 
             // Create the message
-            TextMessage message = (TextMessage) msgSenderGateway.createTextMessage(json);
-
-            // Get correlation ID
-            String corId = requests.get(request);
-            System.out.println("CorID after: " + corId);
-
-            // Assign the correlation ID
-            message.setJMSCorrelationID(corId);
-
-            // Decide where to send the message
-            Destination returnAddress = destinations.get(request);
-            System.out.println("ReplyDestination after: " + returnAddress);
-
-            // Because the message is send to the broker the return address is saved in reply to
-            message.setJMSReplyTo(returnAddress);
+            TextMessage message = (TextMessage) msgSenderGateway.createTextMessage(serialized);
 
             // Send the reply message
             msgSenderGateway.send(message);
@@ -97,6 +85,14 @@ public abstract class BrokerApplicationGateway {
 
     public String serializeBankReply(BankReply reply) {
         return new Gson().toJson(reply);
+    }
+
+    public String serializeBankRequest(BankRequest request) {
+        return new Gson().toJson(request);
+    }
+
+    public String serializeBankReplyAndRequest(BankReply reply, BankRequest request) {
+        return serializeBankReply(reply) + " & " + serializeBankRequest(request);
     }
 
     public void stop() {

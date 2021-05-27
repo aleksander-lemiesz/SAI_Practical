@@ -1,12 +1,14 @@
 package loanclient.gui;
 
 import com.google.gson.Gson;
+import shared.model.ListViewLine;
 import shared.model.MessageReceiverGateway;
 import shared.model.MessageSenderGateway;
 import shared.model.client.LoanReply;
 import shared.model.client.LoanRequest;
 
 import javax.jms.*;
+import java.lang.ref.SoftReference;
 import java.util.HashMap;
 
 public abstract class BrokerApplicationGateway {
@@ -28,15 +30,16 @@ public abstract class BrokerApplicationGateway {
             @Override
             public void onMessage(Message message) {
                 try {
-                    // Get the loan request via correlation ID in the hashMap
-                    String corId = message.getJMSCorrelationID();
-                    LoanRequest request = requests.get(corId);
-                    System.out.println("CorID: " + corId);
-                    System.out.println("Request: " + request);
 
-                    // Get the LoanReply form the bank message
                     TextMessage textMessage = (TextMessage) message;
-                    LoanReply reply = deserializeLoanReply(textMessage.getText());
+
+                    // Deserialize
+                    String split[] = textMessage.getText().split(" & ");
+                    LoanReply reply = deserializeLoanReply(split[0]);
+                    LoanRequest request = deserializeLoanRequest(split[1]);
+
+                    System.out.println("On message Client reply: " + reply);
+                    System.out.println("On message Client request: " + request);
 
                     // Assign the reply to the request
                     onLoanReplyReceived(request, reply);
@@ -47,6 +50,8 @@ public abstract class BrokerApplicationGateway {
             }
         });
     }
+
+
 
     public void applyForLoan(LoanRequest request) throws Exception {
 
@@ -59,7 +64,6 @@ public abstract class BrokerApplicationGateway {
 
         // Set the receiver destination
         Destination replyDest = msgReceiverGateway.getDestination();
-        System.out.println("ReplyDestination: " + replyDest);
         message.setJMSReplyTo(replyDest);
 
         // send message
@@ -67,7 +71,6 @@ public abstract class BrokerApplicationGateway {
 
         // Put the messageId into the hashMap to be able to assign the reply
         String messageId = message.getJMSMessageID();
-        System.out.println("Original ID: " + messageId);
         requests.put(messageId, request);
 
     }
@@ -76,6 +79,19 @@ public abstract class BrokerApplicationGateway {
 
     public LoanReply deserializeLoanReply(String body) {
         return new Gson().fromJson(body, LoanReply.class);
+    }
+
+    public LoanRequest deserializeLoanRequest(String body) {
+        return new Gson().fromJson(body, LoanRequest.class);
+    }
+
+    public ListViewLine<LoanRequest, LoanReply> deserializeLoanReplyAndRequest(String body) {
+        String split[] = body.split(" & ");
+        LoanReply reply = deserializeLoanReply(split[0]);
+        LoanRequest request = deserializeLoanRequest(split[1]);
+        ListViewLine<LoanRequest, LoanReply> listViewLine = new ListViewLine<>(request);
+        listViewLine.setReply(reply);
+        return listViewLine;
     }
 
     public void stop() {
