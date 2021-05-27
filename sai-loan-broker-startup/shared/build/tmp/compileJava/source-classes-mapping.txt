@@ -12,3 +12,7 @@ shared/model/client/LoanRequest.java
  shared.model.client.LoanRequest
 shared/model/bank/BankReply.java
  shared.model.bank.BankReply
+shared/model/broker/Loan.java
+ shared.model.broker.Loan
+shared/model/broker/BankInterestRequest.java
+ shared.model.broker.BankInterestRequest
