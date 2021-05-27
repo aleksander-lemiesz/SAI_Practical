@@ -16,12 +16,6 @@ public abstract class BrokerApplicationGateway {
     private final MessageReceiverGateway msgReceiverGateway;
     private final MessageSenderGateway msgSenderGateway;
 
-    // Storing the requests
-    private HashMap<BankRequest, String> requests = new HashMap<>();
-
-    // Storing the destinations
-    private HashMap<BankRequest, Destination> destinations = new HashMap<>();
-
     public abstract void onBankRequestReceived(BankRequest request);
 
     public void sendBankReply(BankRequest request, BankReply reply) {
@@ -55,18 +49,6 @@ public abstract class BrokerApplicationGateway {
 
                     //deserialize json
                     BankRequest bankRequest = deserializeBankRequest(json);
-
-                    // Get the id of the message
-                    String messageId = message.getJMSCorrelationID();
-                    System.out.println("CorID before: " + messageId);
-
-                    // Put the id and request in the hashMap
-                    requests.put(bankRequest, messageId);
-
-                    // Put the bankRequest and returnAddress
-                    Destination destination = message.getJMSReplyTo();
-                    System.out.println("ReplyDestination before: " + destination);
-                    destinations.put(bankRequest, destination);
 
                     //call abstr. meth. to pass the bankRequest
                     onBankRequestReceived(bankRequest);

@@ -43,7 +43,6 @@ public class BankController implements Initializable {
             public void run() {
                 ListViewLine<BankRequest, BankReply> listViewLine = new ListViewLine<>(bankRequest);
                 lvBankRequestReply.getItems().add(listViewLine);
-                //lvBankRequestReply.getItems().add(bankRequest);
             }
         });
     }
@@ -63,7 +62,6 @@ public class BankController implements Initializable {
     @FXML
     public void btnSendBankInterestReplyClicked() {
 
-        //BankRequest bankRequest = this.lvBankRequestReply.getSelectionModel().getSelectedItem();
         var line = this.lvBankRequestReply.getSelectionModel().getSelectedItem();
         BankRequest bankRequest = line.getRequest();
 
