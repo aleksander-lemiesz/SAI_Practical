@@ -9,7 +9,7 @@ import shared.model.client.LoanRequest;
 import javax.jms.*;
 import java.util.HashMap;
 
-public abstract class BankApplicationGateway {
+public abstract class BrokerApplicationGateway {
 
     private MessageSenderGateway msgSenderGateway = null;
     private MessageReceiverGateway msgReceiverGateway = null;
@@ -18,7 +18,7 @@ public abstract class BankApplicationGateway {
     private HashMap<String, LoanRequest> requests = new HashMap<>();
     private final String replyQueue = "bankReplyQueue";
 
-    public BankApplicationGateway() {
+    public BrokerApplicationGateway() {
         // start connection
         //msgSenderGateway = new MessageSenderGateway("bankRequestQueue");
         msgSenderGateway = new MessageSenderGateway("brokerRequestQueue");

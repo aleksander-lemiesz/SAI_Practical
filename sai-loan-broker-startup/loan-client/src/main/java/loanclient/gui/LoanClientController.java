@@ -14,7 +14,7 @@ import java.util.ResourceBundle;
 
 public class LoanClientController implements Initializable {
 
-    private BankApplicationGateway gateway = null;
+    private BrokerApplicationGateway gateway = null;
 
     @FXML
     private TextField tfSsn;
@@ -55,7 +55,7 @@ public class LoanClientController implements Initializable {
         tfAmount.setText("80000");
         tfTime.setText("30");
 
-        gateway = new BankApplicationGateway() {
+        gateway = new BrokerApplicationGateway() {
             @Override
             public void onLoanReplyReceived(LoanRequest request, LoanReply reply) {
                 // loop through the listview and find line with this request

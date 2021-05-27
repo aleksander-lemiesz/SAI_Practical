@@ -1,13 +1,11 @@
 package bank.gui;
 
 
-import com.google.gson.Gson;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import shared.model.MessageReceiverGateway;
 import shared.model.bank.BankReply;
 import shared.model.bank.BankRequest;
 
@@ -15,14 +13,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import javax.jms.*;
-import javax.naming.NamingException;
-
-
 public class BankController implements Initializable {
 
-    private LoanClientApplicationGateway gateway = null;
+    private BrokerApplicationGateway gateway = null;
 
     @FXML
     private ListView<BankRequest> lvBankRequestReply;
@@ -30,7 +23,7 @@ public class BankController implements Initializable {
     private TextField tfInterest;
 
     public BankController() {
-        gateway = new LoanClientApplicationGateway() {
+        gateway = new BrokerApplicationGateway() {
             @Override
             public void onBankRequestReceived(BankRequest request) {
                 showBankRequest(request);
