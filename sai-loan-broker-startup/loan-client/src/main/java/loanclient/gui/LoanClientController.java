@@ -58,11 +58,9 @@ public class LoanClientController implements Initializable {
         gateway = new BrokerApplicationGateway() {
             @Override
             public void onLoanReplyReceived(LoanRequest request, LoanReply reply) {
-                System.out.println("LoanRequest onReceived: " + request);
                 // loop through the listview and find line with this request
                 for (ListViewLine<LoanRequest, LoanReply> list : lvLoanRequestReply.getItems()) {
                     // assign reply to that line
-                    System.out.println("Request in memory: " + list.getRequest());
                     if (request.equals(list.getRequest())) {
                         list.setReply(reply);
                     }

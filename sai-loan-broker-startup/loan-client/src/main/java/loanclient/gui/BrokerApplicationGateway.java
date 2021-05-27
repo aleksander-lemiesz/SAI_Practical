@@ -17,7 +17,6 @@ public abstract class BrokerApplicationGateway {
     private MessageReceiverGateway msgReceiverGateway = null;
 
     // Storing the requests
-    private HashMap<String, LoanRequest> requests = new HashMap<>();
     private final String replyQueue = "bankReplyQueue";
 
     public BrokerApplicationGateway() {
@@ -38,9 +37,6 @@ public abstract class BrokerApplicationGateway {
                     LoanReply reply = deserializeLoanReply(split[0]);
                     LoanRequest request = deserializeLoanRequest(split[1]);
 
-                    System.out.println("On message Client reply: " + reply);
-                    System.out.println("On message Client request: " + request);
-
                     // Assign the reply to the request
                     onLoanReplyReceived(request, reply);
 
@@ -56,8 +52,7 @@ public abstract class BrokerApplicationGateway {
     public void applyForLoan(LoanRequest request) throws Exception {
 
         // Create JSON
-        Gson gson = new Gson();
-        String json = gson.toJson(request);
+        var json = serializeLoanRequest(request);
 
         // Create the message from JSON
         Message message = msgSenderGateway.createTextMessage(json);
@@ -69,13 +64,13 @@ public abstract class BrokerApplicationGateway {
         // send message
         msgSenderGateway.send(message);
 
-        // Put the messageId into the hashMap to be able to assign the reply
-        String messageId = message.getJMSMessageID();
-        requests.put(messageId, request);
-
     }
 
     public abstract void onLoanReplyReceived(LoanRequest request, LoanReply reply);
+
+    public String serializeLoanRequest(LoanRequest request) {
+        return new Gson().toJson(request);
+    }
 
     public LoanReply deserializeLoanReply(String body) {
         return new Gson().fromJson(body, LoanReply.class);
