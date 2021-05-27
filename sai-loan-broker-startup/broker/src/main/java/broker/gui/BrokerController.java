@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
+import org.glassfish.jersey.client.ClientConfig;
 import shared.model.ListViewLine;
 import shared.model.bank.BankReply;
 import shared.model.bank.BankRequest;
@@ -15,26 +16,12 @@ import shared.model.client.LoanRequest;
 
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
-
-
-import org.glassfish.jersey.SslConfigurator;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-
-import javax.net.ssl.SSLContext;
-import javax.ws.rs.core.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Objects;
-
 
 
 public class BrokerController implements Initializable {
@@ -94,7 +81,7 @@ public class BrokerController implements Initializable {
 
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             BankInterestRequest entity = response.readEntity(BankInterestRequest.class);
-            System.out.println("The service response is: " + entity);
+            //System.out.println("The service response is: " + entity);
             return entity;
         } else {
             System.err.println("ERROR: Cannot get path param! " + response);
@@ -122,7 +109,7 @@ public class BrokerController implements Initializable {
         Response response = serviceTarget.request().accept(MediaType.TEXT_PLAIN).post(loanEntity);
 
         if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
-            System.out.println("Successfully archived " + loan + ".");
+            //System.out.println("Successfully archived " + loan + ".");
         } else {
             System.err.println("ERROR: Cannot archive loan " + loan + "!" + response);
             String entity = response.readEntity(String.class);
