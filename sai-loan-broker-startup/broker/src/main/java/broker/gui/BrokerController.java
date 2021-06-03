@@ -11,6 +11,7 @@ import org.mariuszgromada.math.mxparser.Expression;
 import shared.model.ListViewLine;
 import shared.model.bank.BankReply;
 import shared.model.bank.BankRequest;
+import shared.model.broker.Aggregator;
 import shared.model.broker.BankInterestRequest;
 import shared.model.broker.Loan;
 import shared.model.client.LoanReply;
@@ -22,6 +23,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
@@ -34,6 +36,10 @@ public class BrokerController implements Initializable {
     // Linking LoanRequests with BankRequests
     private HashMap<BankRequest, LoanRequest> requests = new HashMap<>();
 
+    // Linking BankRequests with Aggregators
+    private ArrayList<Aggregator> aggregations = new ArrayList<>();
+
+
     @FXML
     private ListView<ListViewLine<LoanRequest, LoanReply>> lvLoanRequestReply = new ListView<>();
 
@@ -44,7 +50,6 @@ public class BrokerController implements Initializable {
                 BankInterestRequest bankInterestRequest = getCreditInfo();
                 BankRequest bankRequest = new BankRequest(loanRequest.getAmount(), loanRequest.getTime(),
                         bankInterestRequest.getCreditScore(), bankInterestRequest.getHistory());
-                System.out.println(bankInterestRequest);
 
                 //bankGateway.sendBankRequest(bankRequest);
                 checkAndSendRequest(bankRequest);
@@ -57,19 +62,60 @@ public class BrokerController implements Initializable {
         bankGateway = new BankApplicationGateway() {
             @Override
             public void onBankReplyReceived(BankReply bankReply, BankRequest bankRequest) {
-                LoanReply loanReply = new LoanReply(bankReply.getInterest(), bankReply.getBank());
-                LoanRequest request = requests.get(bankRequest);
-                loanGateway.sendLoanReply(loanReply, request);
 
-                showAndUpdateLoans(loanReply, request);
+                var index = getAggregatorIndex(bankRequest);
+                System.out.println("Aggregator from get: " + aggregations.get(index));
 
-                if (bankReply.getInterest() >= 0) {
-                    // Archive the loan
-                    archive(loanReply, request);
+                if (aggregations.get(index).getAggregationID() != 0) {
+
+                    aggregations.get(index).AddReply(bankReply);
+
+                    if (aggregations.get(index).isReadyForFinalReply()) {
+
+                        BankReply bestBankReply = aggregations.get(index).getBestBankReply();
+                        LoanReply bestLoanReply = new LoanReply(bestBankReply.getInterest(), bestBankReply.getBank());
+
+                        LoanRequest request = requests.get(bankRequest);
+                        loanGateway.sendLoanReply(bestLoanReply, request);
+
+                        showAndUpdateLoans(bestLoanReply, request);
+
+                        if (bankReply.getInterest() >= 0) {
+                            // Archive the loan
+                            archive(bestLoanReply, request);
+                        }
+                    }
                 }
             }
         };
 
+    }
+
+    public Aggregator getAggregator(BankRequest request) {
+        /*Aggregator toReturn = new Aggregator();
+        toReturn.setRequest(request);
+
+        for (Aggregator a : aggregations) {
+            if (a.getRequest().equals(request)) {
+                toReturn.setAggregationID(a.getAggregationID());
+                toReturn.setNumberOfRepliesExpected(a.getNumberOfRepliesExpected());
+            }
+        }
+        return toReturn;*/
+        return aggregations.get(getAggregatorIndex(request));
+    }
+
+    public int getAggregatorIndex(BankRequest request) {
+        int toReturn = 0;
+
+        int index = 0;
+        for (Aggregator a : aggregations) {
+            if (a.getRequest().equals(request)) {
+                toReturn = index;
+            }
+            index++;
+        }
+        return toReturn;
     }
 
     private BankInterestRequest getCreditInfo() {
@@ -162,29 +208,50 @@ public class BrokerController implements Initializable {
 
     public void checkAndSendRequest(BankRequest bankRequest) {
 
+        Aggregator aggregator = new Aggregator(generateAggregationID(), bankRequest);
+        int numberOfTimesSent = 0;
+
         String ING       = "amount <= 100000 && time <= 10";
         String ABN_AMRO  = "amount >= 200000 && amount <= 300000  && time <= 20";
         String RABO_BANK = "amount <= 250000 && time <= 15";
 
         if (verifyExpression(ING, bankRequest)) {
             bankGateway.sendBankRequestToING(bankRequest);
+            numberOfTimesSent++;
         }
         if (verifyExpression(ABN_AMRO, bankRequest)) {
             bankGateway.sendBankRequestToAMRO(bankRequest);
+            numberOfTimesSent++;
         }
         if (verifyExpression(RABO_BANK, bankRequest)) {
             bankGateway.sendBankRequestToRABO(bankRequest);
+            numberOfTimesSent++;
         }
+        aggregator.setNumberOfRepliesExpected(numberOfTimesSent);
+        System.out.println("Aggregator added to the array: " + aggregator);
+        aggregations.add(aggregator);
 
     }
 
     public boolean verifyExpression(String condition, BankRequest bankRequest) {
         Argument amount = new Argument(" amount = " + bankRequest.getAmount() + " ");
-        Argument time = new Argument(" time = " + bankRequest.getTime() +" ");
+        Argument time = new Argument(" time = " + bankRequest.getTime() + " ");
         // Evaluate rule:
         Expression expression = new Expression(condition, amount, time);
         double result = expression.calculate();
         return result == 1.0;// 1.0 means TRUE, otherwise it is FALSE
+    }
+
+    public int generateAggregationID() {
+        int maxID = 0;
+        if (!aggregations.isEmpty()) {
+            for (Aggregator aggregator : aggregations) {
+                if (maxID < aggregator.getAggregationID()) {
+                    maxID = aggregator.getAggregationID();
+                }
+            }
+        }
+        return maxID + 1;
     }
 
 }
