@@ -20,13 +20,18 @@ public class BankController implements Initializable {
 
     private BrokerApplicationGateway gateway = null;
 
+    private static String bankName = null;
+    private static String queueName = null;
+
     @FXML
     private ListView<ListViewLine<BankRequest, BankReply>> lvBankRequestReply;
     @FXML
     private TextField tfInterest;
 
-    public BankController() {
-        gateway = new BrokerApplicationGateway() {
+    public BankController(String queue, String name) {
+        bankName = name;
+        queueName = queue;
+        gateway = new BrokerApplicationGateway(queueName) {
             @Override
             public void onBankRequestReceived(BankRequest request) {
                 showBankRequest(request);
@@ -65,7 +70,8 @@ public class BankController implements Initializable {
         var line = this.lvBankRequestReply.getSelectionModel().getSelectedItem();
         BankRequest bankRequest = line.getRequest();
 
-        BankReply bankReply = new BankReply(0, "ING");
+        //BankReply bankReply = new BankReply(0, "ING");
+        BankReply bankReply = new BankReply(0, bankName);
 
         int interest = Integer.parseInt(tfInterest.getText());
         bankReply.setInterest(interest);

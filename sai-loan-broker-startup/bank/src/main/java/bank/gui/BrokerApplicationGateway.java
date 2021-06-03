@@ -35,9 +35,10 @@ public abstract class BrokerApplicationGateway {
         }
     }
 
-    public BrokerApplicationGateway() {
-        msgReceiverGateway = new MessageReceiverGateway("bankRequestQueue");
+    public BrokerApplicationGateway(String queue) {
+        //msgReceiverGateway = new MessageReceiverGateway("bankRequestQueue");
         msgSenderGateway = new MessageSenderGateway("brokerReplyQueue");
+        msgReceiverGateway = new MessageReceiverGateway(queue);
 
         msgReceiverGateway.setListener( new MessageListener() {
             @Override

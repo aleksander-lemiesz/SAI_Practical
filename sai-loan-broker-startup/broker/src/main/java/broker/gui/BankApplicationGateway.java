@@ -18,7 +18,7 @@ public abstract class BankApplicationGateway {
     private MessageReceiverGateway fromBankGateway = null;
 
     public BankApplicationGateway() {
-        toBankGateway = new MessageSenderGateway("bankRequestQueue");
+        toBankGateway = new MessageSenderGateway("ingRequestQueue");
         fromBankGateway = new MessageReceiverGateway("brokerReplyQueue");
 
         fromBankGateway.setListener(new MessageListener() {
