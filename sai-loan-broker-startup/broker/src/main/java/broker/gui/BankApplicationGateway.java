@@ -13,13 +13,22 @@ import javax.jms.*;
 
 public abstract class BankApplicationGateway {
 
-    // private MessageSenderGateway toClientGateway = null;
-    private MessageSenderGateway toBankGateway = null;
+    //private MessageSenderGateway toBankGateway = null;
+
+    //Senders
+    private MessageSenderGateway toINGGateway = null;
+    private MessageSenderGateway toAMROGateway = null;
+    private MessageSenderGateway toRABOGateway = null;
+
     private MessageReceiverGateway fromBankGateway = null;
 
     public BankApplicationGateway() {
-        toBankGateway = new MessageSenderGateway("ingRequestQueue");
+        //toBankGateway = new MessageSenderGateway("ingRequestQueue");
         fromBankGateway = new MessageReceiverGateway("brokerReplyQueue");
+
+        toINGGateway = new MessageSenderGateway("ingRequestQueue");
+        toAMROGateway = new MessageSenderGateway("abnRequestQueue");
+        toRABOGateway = new MessageSenderGateway("raboRequestQueue");
 
         fromBankGateway.setListener(new MessageListener() {
             @Override
@@ -46,7 +55,9 @@ public abstract class BankApplicationGateway {
     public abstract void onBankReplyReceived(BankReply reply, BankRequest bankRequest);
 
     public void stop() {
-        toBankGateway.stop();
+        toAMROGateway.stop();
+        toINGGateway.stop();
+        toRABOGateway.stop();
         fromBankGateway.stop();
     }
 
@@ -62,12 +73,30 @@ public abstract class BankApplicationGateway {
         return new Gson().toJson(request);
     }
 
-    public void sendBankRequest(BankRequest bankRequest) {
+    public void sendBankRequestToAMRO(BankRequest bankRequest) {
         try {
-            Message msg = toBankGateway.createTextMessage(serializeBankRequest(bankRequest));
-            toBankGateway.send(msg);
+            Message msg = toAMROGateway.createTextMessage(serializeBankRequest(bankRequest));
+            toAMROGateway.send(msg);
         } catch (JMSException e) {
             e.printStackTrace();
         }
     }
+    public void sendBankRequestToING(BankRequest bankRequest) {
+        try {
+            Message msg = toINGGateway.createTextMessage(serializeBankRequest(bankRequest));
+            toINGGateway.send(msg);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendBankRequestToRABO(BankRequest bankRequest) {
+        try {
+            Message msg = toRABOGateway.createTextMessage(serializeBankRequest(bankRequest));
+            toRABOGateway.send(msg);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

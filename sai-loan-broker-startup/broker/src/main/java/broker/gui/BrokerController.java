@@ -6,6 +6,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 import org.glassfish.jersey.client.ClientConfig;
+import org.mariuszgromada.math.mxparser.Argument;
+import org.mariuszgromada.math.mxparser.Expression;
 import shared.model.ListViewLine;
 import shared.model.bank.BankReply;
 import shared.model.bank.BankRequest;
@@ -43,7 +45,10 @@ public class BrokerController implements Initializable {
                 BankRequest bankRequest = new BankRequest(loanRequest.getAmount(), loanRequest.getTime(),
                         bankInterestRequest.getCreditScore(), bankInterestRequest.getHistory());
                 System.out.println(bankInterestRequest);
-                bankGateway.sendBankRequest(bankRequest);
+
+                //bankGateway.sendBankRequest(bankRequest);
+                checkAndSendRequest(bankRequest);
+
                 requests.put(bankRequest, loanRequest);
 
                 showLoanRequest(loanRequest);
@@ -153,6 +158,33 @@ public class BrokerController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+    }
+
+    public void checkAndSendRequest(BankRequest bankRequest) {
+
+        String ING       = "amount <= 100000 && time <= 10";
+        String ABN_AMRO  = "amount >= 200000 && amount <= 300000  && time <= 20";
+        String RABO_BANK = "amount <= 250000 && time <= 15";
+
+        if (verifyExpression(ING, bankRequest)) {
+            bankGateway.sendBankRequestToING(bankRequest);
+        }
+        if (verifyExpression(ABN_AMRO, bankRequest)) {
+            bankGateway.sendBankRequestToAMRO(bankRequest);
+        }
+        if (verifyExpression(RABO_BANK, bankRequest)) {
+            bankGateway.sendBankRequestToRABO(bankRequest);
+        }
+
+    }
+
+    public boolean verifyExpression(String condition, BankRequest bankRequest) {
+        Argument amount = new Argument(" amount = " + bankRequest.getAmount() + " ");
+        Argument time = new Argument(" time = " + bankRequest.getTime() +" ");
+        // Evaluate rule:
+        Expression expression = new Expression(condition, amount, time);
+        double result = expression.calculate();
+        return result == 1.0;// 1.0 means TRUE, otherwise it is FALSE
     }
 
 }
