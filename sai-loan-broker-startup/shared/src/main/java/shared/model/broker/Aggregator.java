@@ -85,16 +85,16 @@ public class Aggregator {
             System.out.println("The list is empty!");
             return null;
         } else {
-            double minInterest = replies.get(0).getInterest();
-            BankReply toReturn = new BankReply();
+            BankReply bestReply = new BankReply();
+            bestReply.setInterest(replies.get(0).getInterest());
+            bestReply.setBank(replies.get(0).getBank());
             for (BankReply reply : replies) {
-                if (minInterest > reply.getInterest()) {
-                    minInterest = reply.getInterest();
-                    toReturn.setInterest(reply.getInterest());
-                    toReturn.setBank(reply.getBank());
+                if (bestReply.getInterest() > reply.getInterest()) {
+                    bestReply.setInterest(reply.getInterest());
+                    bestReply.setBank(reply.getBank());
                 }
             }
-            return toReturn;
+            return bestReply;
         }
     }
 

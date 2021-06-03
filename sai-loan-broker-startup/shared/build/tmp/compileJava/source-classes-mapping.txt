@@ -2,17 +2,19 @@ shared/model/MessageReceiverGateway.java
  shared.model.MessageReceiverGateway
 shared/model/client/LoanReply.java
  shared.model.client.LoanReply
+shared/model/broker/BankInterestRequest.java
+ shared.model.broker.BankInterestRequest
+shared/model/bank/BankReply.java
+ shared.model.bank.BankReply
 shared/model/bank/BankRequest.java
  shared.model.bank.BankRequest
 shared/model/MessageSenderGateway.java
  shared.model.MessageSenderGateway
+shared/model/broker/Loan.java
+ shared.model.broker.Loan
 shared/model/ListViewLine.java
  shared.model.ListViewLine
 shared/model/client/LoanRequest.java
  shared.model.client.LoanRequest
-shared/model/bank/BankReply.java
- shared.model.bank.BankReply
-shared/model/broker/Loan.java
- shared.model.broker.Loan
-shared/model/broker/BankInterestRequest.java
- shared.model.broker.BankInterestRequest
+shared/model/broker/Aggregator.java
+ shared.model.broker.Aggregator
